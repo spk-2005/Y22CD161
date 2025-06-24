@@ -3,108 +3,467 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Name Validation</title>
+  <title>Password Validation</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      background: linear-gradient(45deg, rgb(61, 61, 61), rgb(34, 34, 34), rgb(10, 10, 10));
+      background: linear-gradient(-45deg, #232526, #414345, #2c3e50, #34495e);
+      background-size: 400% 400%;
+      animation: gradientShift 8s ease infinite;
       margin: 0;
       padding: 0;
       min-height: 100vh;
-      color: white;
-      font-family: Arial, sans-serif;
-    }
-    .centered {
+      color: #f1f1f1;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       display: flex;
-      flex-direction: column;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
+      overflow: hidden;
     }
-    span {
-      font-size: 32px;
-      margin-bottom: 20px;
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
-    input, button {
-      padding: 10px;
-      margin: 10px;
+
+    /* Floating particles background */
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,0.1), transparent),
+        radial-gradient(2px 2px at 40px 70px, rgba(0,255,255,0.1), transparent),
+        radial-gradient(1px 1px at 90px 40px, rgba(255,255,255,0.1), transparent),
+        radial-gradient(1px 1px at 130px 80px, rgba(0,255,255,0.1), transparent),
+        radial-gradient(2px 2px at 160px 30px, rgba(255,255,255,0.1), transparent);
+      background-repeat: repeat;
+      background-size: 200px 100px;
+      animation: particleFloat 20s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes particleFloat {
+      0% { transform: translateY(0px); }
+      100% { transform: translateY(-100px); }
+    }
+
+    .container {
+      background: rgba(44, 44, 44, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 40px 30px;
+      border-radius: 20px;
+      box-shadow: 
+        0 0 30px rgba(0,0,0,0.5),
+        0 0 60px rgba(0,255,255,0.1),
+        inset 0 1px 0 rgba(255,255,255,0.1);
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      animation: containerPulse 1s ease, containerFloat 3s ease-in-out infinite;
+      border: 1px solid rgba(255,255,255,0.1);
+      position: relative;
+      z-index: 10;
+    }
+
+    @keyframes containerPulse {
+      0% { 
+        opacity: 0; 
+        transform: translateY(50px) scale(0.8); 
+      }
+      50% {
+        transform: translateY(-10px) scale(1.05);
+      }
+      100% { 
+        opacity: 1; 
+        transform: translateY(0) scale(1); 
+      }
+    }
+
+    @keyframes containerFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 25px;
+      background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: rainbowText 3s ease-in-out infinite;
+      text-shadow: 0 0 20px rgba(0,255,255,0.5);
+      position: relative;
+    }
+
+    @keyframes rainbowText {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    h1::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 50%;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(45deg, #00ffff, #ff00ff);
+      animation: underlineGrow 2s ease-out 0.5s forwards;
+    }
+
+    @keyframes underlineGrow {
+      to {
+        width: 100%;
+        left: 0;
+      }
+    }
+
+    .input-container {
+      position: relative;
+      margin-bottom: 15px;
+    }
+
+    input[type="password"] {
+      width: 100%;
+      padding: 15px 20px;
       font-size: 1rem;
-      border-radius: 4px;
-      border: 2px solid transparent;
+      margin-bottom: 0;
+      border-radius: 12px;
+      border: 2px solid rgba(255,255,255,0.2);
+      background: rgba(68, 68, 68, 0.8);
+      color: #fff;
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      backdrop-filter: blur(5px);
       outline: none;
     }
-    .valid {
-      border: 12px solid green;
+
+    input[type="password"]:focus {
+      transform: scale(1.02);
+      border-color: #00ffff;
+      box-shadow: 
+        0 0 20px rgba(0,255,255,0.3),
+        inset 0 0 20px rgba(0,255,255,0.1);
     }
-    .invalid {
-      border: 12px solid red;
+
+    input[type="password"].valid {
+      border-color: #28a745;
+      background: rgba(40, 167, 69, 0.1);
+      box-shadow: 
+        0 0 25px rgba(40, 167, 69, 0.4),
+        inset 0 0 15px rgba(40, 167, 69, 0.1);
+      animation: successPulse 0.6s ease;
     }
+
+    @keyframes successPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    input[type="password"].invalid {
+      border-color: #dc3545;
+      background: rgba(220, 53, 69, 0.1);
+      box-shadow: 
+        0 0 15px rgba(220, 53, 69, 0.3),
+        inset 0 0 10px rgba(220, 53, 69, 0.1);
+      animation: shake 0.5s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+      20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+
     .error-msg {
-      color: red;
+      color: #ff6b6b;
       font-size: 0.9rem;
-      min-height: 20px;
+      min-height: 60px;
+      white-space: pre-line;
+      padding: 10px;
+      border-radius: 8px;
+      background: rgba(255, 107, 107, 0.05);
+      border: 1px solid rgba(255, 107, 107, 0.2);
+      margin: 15px 0;
+      transition: all 0.3s ease;
+      animation: fadeInUp 0.5s ease;
     }
-    button:disabled {
-      background-color: gray;
-      cursor: not-allowed;
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
-    button {
-      cursor: pointer;
-      background-color: #007bff;
-      color: white;
+
+    .error-msg:empty {
+      min-height: 0;
+      padding: 0;
       border: none;
+      background: none;
+      margin: 10px 0;
+    }
+
+    button {
+      padding: 15px 30px;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 25px;
+      background: linear-gradient(45deg, #007bff, #0056b3);
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+      position: relative;
+      overflow: hidden;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    button:hover:not(:disabled) {
+      background: linear-gradient(45deg, #0056b3, #007bff);
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 8px 25px rgba(0, 123, 255, 0.4);
+      animation: buttonGlow 1.5s ease-in-out infinite;
+    }
+
+    button:hover:not(:disabled)::before {
+      left: 100%;
+    }
+
+    @keyframes buttonGlow {
+      0%, 100% { box-shadow: 0 8px 25px rgba(0, 123, 255, 0.4); }
+      50% { box-shadow: 0 8px 35px rgba(0, 123, 255, 0.6); }
+    }
+
+    button:disabled {
+      background: linear-gradient(45deg, #6c757d, #5a6268);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      animation: none;
+    }
+
+    button:active:not(:disabled) {
+      transform: translateY(-1px) scale(0.98);
+    }
+
+    /* Success animation */
+    .success-checkmark {
+      display: none;
+      position: absolute;
+      top: 50%;
+      right: 15px;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #28a745;
+      animation: checkmarkPop 0.5s ease;
+    }
+
+    .success-checkmark::after {
+      content: '✓';
+      color: white;
+      font-size: 12px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    @keyframes checkmarkPop {
+      0% {
+        transform: translateY(-50%) scale(0);
+        opacity: 0;
+      }
+      50% {
+        transform: translateY(-50%) scale(1.2);
+      }
+      100% {
+        transform: translateY(-50%) scale(1);
+        opacity: 1;
+      }
+    }
+
+    input[type="password"].valid ~ .success-checkmark {
+      display: block;
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 480px) {
+      .container {
+        padding: 25px 20px;
+        margin: 20px;
+        border-radius: 15px;
+      }
+      
+      h1 {
+        font-size: 24px;
+      }
+      
+      input[type="password"] {
+        padding: 12px 15px;
+      }
+      
+      button {
+        padding: 12px 25px;
+        font-size: 1rem;
+      }
+    }
+
+    /* Loading animation for submit */
+    .loading {
+      position: relative;
+    }
+
+    .loading::after {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      margin: auto;
+      border: 2px solid transparent;
+      border-top-color: #ffffff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
 <body>
-  <div class="centered">
-    <div>
-      <span>Check if your name is valid or not</span>
-    </div>
-
-    <form id="nameForm" novalidate>
-      <input type="text" id="nameInput" placeholder="Enter your name" />
-      <button type="submit" id="submitBtn" disabled>Submit</button>
+  <div class="container">
+    <h1>Check Your Password</h1>
+    <form id="passwordForm" novalidate>
+      <div class="input-container">
+        <input type="password" id="passwordInput" placeholder="Enter your password" />
+        <div class="success-checkmark"></div>
+      </div>
       <p id="error" class="error-msg" role="alert"></p>
+      <button type="submit" id="submitBtn" disabled>Submit</button>
     </form>
   </div>
 
   <script>
-    const form = document.getElementById("nameForm");
-    const nameInput = document.getElementById("nameInput");
+    const form = document.getElementById("passwordForm");
+    const passwordInput = document.getElementById("passwordInput");
     const error = document.getElementById("error");
     const submitBtn = document.getElementById("submitBtn");
 
-    function validateName(name) {
-      return name.length >= 3 && /^[a-zA-Z\s]+$/.test(name);
+    function validatePassword(password) {
+      const errors = [];
+      if (password.length < 8) errors.push("• At least 8 characters");
+      if (!/[A-Z]/.test(password)) errors.push("• One uppercase letter");
+      if (!/[a-z]/.test(password)) errors.push("• One lowercase letter");
+      if (!/[0-9]/.test(password)) errors.push("• One number");
+      if (!/[!@#$%^&*]/.test(password)) errors.push("• One special character (!@#$%^&*)");
+
+      return { valid: errors.length === 0, messages: errors };
     }
 
     function updateValidation() {
-      const value = nameInput.value.trim();
+      const value = passwordInput.value;
+      const { valid, messages } = validatePassword(value);
 
-      if (validateName(value)) {
-        nameInput.classList.remove("invalid");
-        nameInput.classList.add("valid");
-        error.textContent = "";
-        submitBtn.disabled = false;
+      // Remove previous classes
+      passwordInput.classList.remove("valid", "invalid");
+      
+      if (value.length > 0) {
+        if (valid) {
+          passwordInput.classList.add("valid");
+          error.textContent = "";
+          submitBtn.disabled = false;
+        } else {
+          passwordInput.classList.add("invalid");
+          error.textContent = messages.join('\n');
+          submitBtn.disabled = true;
+        }
       } else {
-        nameInput.classList.remove("valid");
-        nameInput.classList.add("invalid");
-        error.textContent = "Name must be at least 3 letters and contain only letters and spaces.";
+        error.textContent = "";
         submitBtn.disabled = true;
       }
     }
 
-    nameInput.addEventListener("input", updateValidation);
+    passwordInput.addEventListener("input", updateValidation);
 
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-      const value = nameInput.value.trim();
-      if (validateName(value)) {
-        alert("Valid name submitted: " + value);
-        nameInput.value = '';
-        nameInput.classList.remove("valid");
+      const value = passwordInput.value;
+      const { valid } = validatePassword(value);
+      
+      if (valid) {
+        // Add loading animation
+        submitBtn.classList.add("loading");
+        submitBtn.textContent = "";
         submitBtn.disabled = true;
+        
+        // Simulate form submission
+        setTimeout(() => {
+          submitBtn.classList.remove("loading");
+          submitBtn.textContent = "Submit";
+          
+          // Success feedback
+          alert("🎉 Password is valid and submitted!");
+          
+          // Reset form with animation
+          passwordInput.value = '';
+          passwordInput.classList.remove("valid");
+          error.textContent = "";
+          submitBtn.disabled = true;
+          
+          // Add a brief success glow to container
+          document.querySelector('.container').style.boxShadow = 
+            '0 0 30px rgba(0,0,0,0.5), 0 0 60px rgba(40, 167, 69, 0.5), inset 0 1px 0 rgba(255,255,255,0.1)';
+          
+          setTimeout(() => {
+            document.querySelector('.container').style.boxShadow = 
+              '0 0 30px rgba(0,0,0,0.5), 0 0 60px rgba(0,255,255,0.1), inset 0 1px 0 rgba(255,255,255,0.1)';
+          }, 1000);
+        }, 1500);
       }
+    });
+
+    // Add some interactive hover effects
+    passwordInput.addEventListener('focus', function() {
+      this.parentElement.style.transform = 'scale(1.02)';
+    });
+
+    passwordInput.addEventListener('blur', function() {
+      this.parentElement.style.transform = 'scale(1)';
     });
   </script>
 </body>
